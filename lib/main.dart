@@ -1,20 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:forest_breweries/app/app.dart';
+import 'package:forest_breweries/core/di/injection.dart';
 
 void main() {
-  runApp(const MainApp());
-}
-
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(
-        body: Center(
-          child: Text('Hello World!'),
-        ),
-      ),
-    );
-  }
+  configureDependencies();
+  runApp(const App());
 }
