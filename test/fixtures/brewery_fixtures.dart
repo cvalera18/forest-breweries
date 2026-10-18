@@ -1,0 +1,33 @@
+const breweryJson = <String, dynamic>{
+  'id': 'ae7b3174-8be8-4d53-a3a5-9b8240970eea',
+  'name': 'Antla Brewery',
+  'brewery_type': 'brewpub',
+  'address_1': 'Friesener Straße 1',
+  'address_2': null,
+  'address_3': null,
+  'city': 'Kronach',
+  'state_province': 'Bayern',
+  'postal_code': '96317',
+  'country': 'Germany',
+  'longitude': 11.327765,
+  'latitude': 50.241246,
+  'phone': '+49 9261 628000',
+  'website_url': 'http://www.antla.de',
+  'state': 'Bayern',
+  'street': 'Friesener Straße 1',
+};
+
+const sparseBreweryJson = <String, dynamic>{
+  'id': 'b54b16e1-ac3b-4bff-a11f-f7ae9ddc27e0',
+  'name': 'Sparse Brewing',
+  'brewery_type': 'something_new',
+  'address_1': null,
+  'city': 'Portland',
+  'state_province': 'Oregon',
+  'postal_code': null,
+  'country': 'United States',
+  'longitude': null,
+  'latitude': null,
+  'phone': null,
+  'website_url': null,
+};
