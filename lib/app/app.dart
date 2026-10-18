@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:forest_breweries/app/app_router.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -15,7 +16,7 @@ class App extends StatelessWidget {
         colorSchemeSeed: _seedColor,
         brightness: Brightness.dark,
       ),
-      home: const Scaffold(body: Center(child: Text('Breweries'))),
+      home: AppRouter.breweryList(),
     );
   }
 }
