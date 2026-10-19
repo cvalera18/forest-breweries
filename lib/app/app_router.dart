@@ -10,7 +10,13 @@ import 'package:forest_breweries/features/breweries/presentation/list/brewery_li
 abstract final class AppRouter {
   static Widget breweryList() => BlocProvider(
     create: (_) => getIt<BreweryListBloc>()..add(const BreweryListStarted()),
-    child: const BreweryListPage(),
+    child: Builder(
+      builder: (context) => BreweryListPage(
+        onBreweryTap: (brewery) => Navigator.of(
+          context,
+        ).push(breweryDetail(id: brewery.id, name: brewery.name)),
+      ),
+    ),
   );
 
   static Route<void> breweryDetail({

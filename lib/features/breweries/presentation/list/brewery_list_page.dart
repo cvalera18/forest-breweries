@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:forest_breweries/app/app_router.dart';
 import 'package:forest_breweries/core/error/app_exception.dart';
 import 'package:forest_breweries/core/location/coordinates.dart';
 import 'package:forest_breweries/core/location/haversine.dart';
@@ -12,7 +11,9 @@ import 'package:forest_breweries/features/breweries/presentation/list/widgets/lo
 import 'package:forest_breweries/features/breweries/presentation/widgets/brewery_type_badge.dart';
 
 class BreweryListPage extends StatelessWidget {
-  const BreweryListPage({super.key});
+  const BreweryListPage({required this.onBreweryTap, super.key});
+
+  final ValueChanged<Brewery> onBreweryTap;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,10 @@ class BreweryListPage extends StatelessWidget {
             onRetry: () =>
                 context.read<BreweryListBloc>().add(const BreweryListStarted()),
           ),
-          BreweryListLoaded() => _BreweryListView(state: state),
+          BreweryListLoaded() => _BreweryListView(
+            state: state,
+            onBreweryTap: onBreweryTap,
+          ),
         },
       ),
     );
@@ -39,9 +43,10 @@ class BreweryListPage extends StatelessWidget {
 }
 
 class _BreweryListView extends StatefulWidget {
-  const _BreweryListView({required this.state});
+  const _BreweryListView({required this.state, required this.onBreweryTap});
 
   final BreweryListLoaded state;
+  final ValueChanged<Brewery> onBreweryTap;
 
   @override
   State<_BreweryListView> createState() => _BreweryListViewState();
@@ -105,6 +110,7 @@ class _BreweryListViewState extends State<_BreweryListView> {
                 ? _BreweryTile(
                     brewery: breweries[index],
                     origin: widget.state.origin,
+                    onTap: () => widget.onBreweryTap(breweries[index]),
                   )
                 : _NextPageFooter(error: widget.state.nextPageError),
           ),
@@ -115,9 +121,10 @@ class _BreweryListViewState extends State<_BreweryListView> {
 }
 
 class _BreweryTile extends StatelessWidget {
-  const _BreweryTile({required this.brewery, this.origin});
+  const _BreweryTile({required this.brewery, required this.onTap, this.origin});
 
   final Brewery brewery;
+  final VoidCallback onTap;
   final Coordinates? origin;
 
   @override
@@ -130,9 +137,7 @@ class _BreweryTile extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => Navigator.of(
-          context,
-        ).push(AppRouter.breweryDetail(id: brewery.id, name: brewery.name)),
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
