@@ -73,6 +73,7 @@ class _BreweryListViewState extends State<_BreweryListView> {
     final breweries = widget.state.breweries;
     return ListView.builder(
       controller: _scrollController,
+      padding: const EdgeInsets.symmetric(vertical: 10),
       itemCount: breweries.length + (widget.state.hasReachedMax ? 0 : 1),
       itemBuilder: (context, index) => index < breweries.length
           ? _BreweryTile(brewery: breweries[index])
@@ -88,11 +89,73 @@ class _BreweryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final secondaryColor = theme.colorScheme.onSurfaceVariant;
     final city = brewery.city;
-    final type = brewery.type.label;
-    return ListTile(
-      title: Text(brewery.name),
-      subtitle: Text(city == null ? type : '$type · $city'),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              brewery.name,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                _TypeBadge(label: brewery.type.label),
+                if (city != null) ...[
+                  const SizedBox(width: 12),
+                  Icon(
+                    Icons.location_on_outlined,
+                    size: 16,
+                    color: secondaryColor,
+                  ),
+                  const SizedBox(width: 4),
+                  Expanded(
+                    child: Text(
+                      city,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: secondaryColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TypeBadge extends StatelessWidget {
+  const _TypeBadge({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+          color: colorScheme.onSecondaryContainer,
+        ),
+      ),
     );
   }
 }
