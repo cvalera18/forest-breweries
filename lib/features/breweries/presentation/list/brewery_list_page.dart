@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forest_breweries/app/app_router.dart';
 import 'package:forest_breweries/core/error/app_exception.dart';
 import 'package:forest_breweries/core/widgets/error_view.dart';
 import 'package:forest_breweries/features/breweries/domain/entities/brewery.dart';
-import 'package:forest_breweries/features/breweries/presentation/brewery_type_label.dart';
 import 'package:forest_breweries/features/breweries/presentation/list/bloc/brewery_list_bloc.dart';
+import 'package:forest_breweries/features/breweries/presentation/widgets/brewery_type_badge.dart';
 
 class BreweryListPage extends StatelessWidget {
   const BreweryListPage({super.key});
@@ -94,66 +95,55 @@ class _BreweryTile extends StatelessWidget {
     final city = brewery.city;
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              brewery.name,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _TypeBadge(label: brewery.type.label),
-                if (city != null) ...[
-                  const SizedBox(width: 12),
-                  Icon(
-                    Icons.location_on_outlined,
-                    size: 16,
-                    color: secondaryColor,
-                  ),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      city,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: secondaryColor,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.of(
+          context,
+        ).push(AppRouter.breweryDetail(id: brewery.id, name: brewery.name)),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      brewery.name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TypeBadge extends StatelessWidget {
-  const _TypeBadge({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: colorScheme.secondaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-          color: colorScheme.onSecondaryContainer,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        BreweryTypeBadge(type: brewery.type),
+                        if (city != null) ...[
+                          const SizedBox(width: 12),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 16,
+                            color: secondaryColor,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              city,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: secondaryColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: secondaryColor),
+            ],
+          ),
         ),
       ),
     );

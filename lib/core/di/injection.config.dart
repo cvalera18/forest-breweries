@@ -18,6 +18,8 @@ import 'package:forest_breweries/features/breweries/data/repositories/brewery_re
     as _i1051;
 import 'package:forest_breweries/features/breweries/domain/repositories/brewery_repository.dart'
     as _i592;
+import 'package:forest_breweries/features/breweries/presentation/detail/cubit/brewery_detail_cubit.dart'
+    as _i791;
 import 'package:forest_breweries/features/breweries/presentation/list/bloc/brewery_list_bloc.dart'
     as _i608;
 import 'package:get_it/get_it.dart' as _i174;
@@ -37,6 +39,9 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i592.BreweryRepository>(
       () => _i1051.BreweryRepositoryImpl(gh<_i755.BreweryRemoteDataSource>()),
+    );
+    gh.factory<_i791.BreweryDetailCubit>(
+      () => _i791.BreweryDetailCubit(gh<_i592.BreweryRepository>()),
     );
     gh.factory<_i608.BreweryListBloc>(
       () => _i608.BreweryListBloc(gh<_i592.BreweryRepository>()),
