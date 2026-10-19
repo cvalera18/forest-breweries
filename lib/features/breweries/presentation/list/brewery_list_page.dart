@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forest_breweries/app/app_router.dart';
 import 'package:forest_breweries/core/error/app_exception.dart';
+import 'package:forest_breweries/core/location/coordinates.dart';
+import 'package:forest_breweries/core/location/haversine.dart';
+import 'package:forest_breweries/core/location/location_service.dart';
 import 'package:forest_breweries/core/widgets/error_view.dart';
 import 'package:forest_breweries/features/breweries/domain/entities/brewery.dart';
 import 'package:forest_breweries/features/breweries/presentation/list/bloc/brewery_list_bloc.dart';
+import 'package:forest_breweries/features/breweries/presentation/list/widgets/location_banner.dart';
 import 'package:forest_breweries/features/breweries/presentation/widgets/brewery_type_badge.dart';
 
 class BreweryListPage extends StatelessWidget {
@@ -47,17 +51,29 @@ class _BreweryListViewState extends State<_BreweryListView> {
   static const _loadMoreThreshold = 300.0;
 
   final _scrollController = ScrollController();
+  late final AppLifecycleListener _lifecycleListener;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
+    _lifecycleListener = AppLifecycleListener(onResume: _onResume);
   }
 
   @override
   void dispose() {
+    _lifecycleListener.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  /// Re-checks location when returning from the system settings.
+  void _onResume() {
+    final issue = widget.state.locationIssue;
+    if (issue == LocationUnavailableReason.serviceDisabled ||
+        issue == LocationUnavailableReason.permissionDeniedForever) {
+      context.read<BreweryListBloc>().add(const BreweryListLocationRequested());
+    }
   }
 
   void _onScroll() {
@@ -72,27 +88,44 @@ class _BreweryListViewState extends State<_BreweryListView> {
   @override
   Widget build(BuildContext context) {
     final breweries = widget.state.breweries;
-    return ListView.builder(
-      controller: _scrollController,
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      itemCount: breweries.length + (widget.state.hasReachedMax ? 0 : 1),
-      itemBuilder: (context, index) => index < breweries.length
-          ? _BreweryTile(brewery: breweries[index])
-          : _NextPageFooter(error: widget.state.nextPageError),
+    final locationIssue = widget.state.locationIssue;
+    return Column(
+      children: [
+        if (locationIssue != null)
+          LocationBanner(
+            reason: locationIssue,
+            isLocating: widget.state.isLocating,
+          ),
+        Expanded(
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            itemCount: breweries.length + (widget.state.hasReachedMax ? 0 : 1),
+            itemBuilder: (context, index) => index < breweries.length
+                ? _BreweryTile(
+                    brewery: breweries[index],
+                    origin: widget.state.origin,
+                  )
+                : _NextPageFooter(error: widget.state.nextPageError),
+          ),
+        ),
+      ],
     );
   }
 }
 
 class _BreweryTile extends StatelessWidget {
-  const _BreweryTile({required this.brewery});
+  const _BreweryTile({required this.brewery, this.origin});
 
   final Brewery brewery;
+  final Coordinates? origin;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final secondaryColor = theme.colorScheme.onSurfaceVariant;
     final city = brewery.city;
+    final distance = _distanceLabel();
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       clipBehavior: Clip.antiAlias,
@@ -135,6 +168,16 @@ class _BreweryTile extends StatelessWidget {
                               ),
                             ),
                           ),
+                        ] else
+                          const Spacer(),
+                        if (distance != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            distance,
+                            style: theme.textTheme.labelLarge?.copyWith(
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
                         ],
                       ],
                     ),
@@ -147,6 +190,16 @@ class _BreweryTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Distance from [origin], or null when either point is unknown.
+  String? _distanceLabel() {
+    final origin = this.origin;
+    final coordinates = brewery.coordinates;
+    if (origin == null || coordinates == null) return null;
+    final km = haversineDistanceKm(origin, coordinates);
+    if (km < 1) return '${(km * 1000).round()} m';
+    return km < 100 ? '${km.toStringAsFixed(1)} km' : '${km.round()} km';
   }
 }
 

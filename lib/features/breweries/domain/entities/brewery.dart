@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:forest_breweries/core/location/coordinates.dart';
 
 enum BreweryType {
   micro,
@@ -45,6 +46,13 @@ class Brewery extends Equatable {
   final String? websiteUrl;
   final double? latitude;
   final double? longitude;
+
+  Coordinates? get coordinates {
+    final latitude = this.latitude;
+    final longitude = this.longitude;
+    if (latitude == null || longitude == null) return null;
+    return Coordinates(latitude: latitude, longitude: longitude);
+  }
 
   @override
   List<Object?> get props => [

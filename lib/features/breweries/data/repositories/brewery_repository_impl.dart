@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:forest_breweries/core/error/app_exception.dart';
+import 'package:forest_breweries/core/location/coordinates.dart';
 import 'package:forest_breweries/core/network/dio_exception_mapper.dart';
 import 'package:forest_breweries/features/breweries/data/datasources/brewery_remote_data_source.dart';
 import 'package:forest_breweries/features/breweries/domain/entities/brewery.dart';
@@ -16,10 +17,12 @@ class BreweryRepositoryImpl implements BreweryRepository {
   Future<List<Brewery>> getBreweries({
     required int page,
     required int perPage,
+    Coordinates? near,
   }) => _guard(() async {
     final dtos = await _remoteDataSource.fetchBreweries(
       page: page,
       perPage: perPage,
+      near: near,
     );
     return dtos.map((dto) => dto.toEntity()).toList();
   });

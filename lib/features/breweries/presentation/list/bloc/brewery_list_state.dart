@@ -34,6 +34,9 @@ final class BreweryListLoaded extends BreweryListState {
     required this.hasReachedMax,
     this.isLoadingMore = false,
     this.nextPageError,
+    this.origin,
+    this.locationIssue,
+    this.isLocating = false,
   });
 
   final List<Brewery> breweries;
@@ -41,8 +44,12 @@ final class BreweryListLoaded extends BreweryListState {
   final bool isLoadingMore;
   final AppException? nextPageError;
 
+  final Coordinates? origin;
+  final LocationUnavailableReason? locationIssue;
+  final bool isLocating;
+
   bool get canLoadMore =>
-      !hasReachedMax && !isLoadingMore && nextPageError == null;
+      !hasReachedMax && !isLoadingMore && !isLocating && nextPageError == null;
 
   @override
   List<Object?> get props => [
@@ -50,5 +57,8 @@ final class BreweryListLoaded extends BreweryListState {
     hasReachedMax,
     isLoadingMore,
     nextPageError,
+    origin,
+    locationIssue,
+    isLocating,
   ];
 }

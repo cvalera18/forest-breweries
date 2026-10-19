@@ -12,6 +12,7 @@
 
 import 'package:dio/dio.dart' as _i361;
 import 'package:forest_breweries/core/di/network_module.dart' as _i3;
+import 'package:forest_breweries/core/location/location_service.dart' as _i14;
 import 'package:forest_breweries/features/breweries/data/datasources/brewery_remote_data_source.dart'
     as _i755;
 import 'package:forest_breweries/features/breweries/data/repositories/brewery_repository_impl.dart'
@@ -34,17 +35,21 @@ extension GetItInjectableX on _i174.GetIt {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final networkModule = _$NetworkModule();
     gh.lazySingleton<_i361.Dio>(() => networkModule.dio);
+    gh.lazySingleton<_i14.LocationService>(() => _i14.LocationService());
     gh.lazySingleton<_i755.BreweryRemoteDataSource>(
       () => _i755.BreweryRemoteDataSource(gh<_i361.Dio>()),
     );
     gh.lazySingleton<_i592.BreweryRepository>(
       () => _i1051.BreweryRepositoryImpl(gh<_i755.BreweryRemoteDataSource>()),
     );
+    gh.factory<_i608.BreweryListBloc>(
+      () => _i608.BreweryListBloc(
+        gh<_i592.BreweryRepository>(),
+        gh<_i14.LocationService>(),
+      ),
+    );
     gh.factory<_i791.BreweryDetailCubit>(
       () => _i791.BreweryDetailCubit(gh<_i592.BreweryRepository>()),
-    );
-    gh.factory<_i608.BreweryListBloc>(
-      () => _i608.BreweryListBloc(gh<_i592.BreweryRepository>()),
     );
     return this;
   }
